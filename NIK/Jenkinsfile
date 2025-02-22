@@ -1,0 +1,65 @@
+pipeline {
+    agent any
+
+    environment {
+        DOTNET_VERSION = '8.0'  // .NET version
+        PROJECT_DIR = 'NIK'  // Project folder containing .sln and .csproj files
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Nikshay123/MVC.git'
+            }
+        }
+
+        stage('Setup Environment') {
+            steps {
+                sh 'dotnet --version'  // Verify .NET is installed
+            }
+        }
+
+        stage('Restore Dependencies') {
+            steps {
+                dir(env.PROJECT_DIR) {
+                    sh 'dotnet restore'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir(env.PROJECT_DIR) {
+                    sh 'dotnet build --configuration Release --no-restore'
+                }
+            }
+        }
+
+        stage('Run Unit Tests') {
+            steps {
+                dir(env.PROJECT_DIR) {
+                    catchError(buildResult: 'UNSTABLE') {
+                        sh 'dotnet test --no-restore --verbosity normal'
+                    }
+                }
+            }
+        }
+
+        stage('Publish') {
+            steps {
+                dir(env.PROJECT_DIR) {
+                    sh 'dotnet publish --configuration Release --output ./publish --no-restore'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs for details.'
+        }
+    }
+}
