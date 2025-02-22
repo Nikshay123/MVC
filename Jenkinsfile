@@ -3,45 +3,36 @@ pipeline {
 
     environment {
         DOTNET_VERSION = '8.0' // Specify .NET 8
-        PROJECT_DIR = 'NIK' // Path to the folder containing the .NET project
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Nikshay123/MVC.git' // Cloning repository
+                git branch: 'main', url: 'https://github.com/Nikshay123/MVC.git'
             }
         }
 
         stage('Restore') {
             steps {
-                dir(env.PROJECT_DIR) { // Navigate inside NIK folder
-                    sh 'dotnet restore'
-                }
+                sh 'dotnet restore NIK'
             }
         }
 
         stage('Build') {
             steps {
-                dir(env.PROJECT_DIR) { 
-                    sh 'dotnet build --configuration Release --no-restore'
-                }
+                sh 'dotnet build NIK --configuration Release --no-restore'
             }
         }
 
         stage('Test') {
             steps {
-                dir(env.PROJECT_DIR) { 
-                    sh 'dotnet test --no-restore --verbosity normal'
-                }
+                sh 'dotnet test NIK --no-restore --verbosity normal'
             }
         }
 
         stage('Publish') {
             steps {
-                dir(env.PROJECT_DIR) { 
-                    sh 'dotnet publish --configuration Release --output ./publish --no-restore'
-                }
+                sh 'dotnet publish NIK --configuration Release --output ./NIK/publish --no-restore'
             }
         }
     }
