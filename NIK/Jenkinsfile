@@ -2,26 +2,20 @@ pipeline {
     agent any
 
     environment {
-        DOTNET_VERSION = '8.0'  // .NET version
-        PROJECT_DIR = 'NIK'  // Project folder containing .sln and .csproj files
+        DOTNET_VERSION = '8.0' // Specify .NET 8
+        PROJECT_DIR = 'NIK' // Path to the folder containing the .NET project
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Nikshay123/MVC.git'
+                git branch: 'main', url: 'https://github.com/Nikshay123/MVC.git' // Cloning repository
             }
         }
 
-        stage('Setup Environment') {
+        stage('Restore') {
             steps {
-                sh 'dotnet --version'  // Verify .NET is installed
-            }
-        }
-
-        stage('Restore Dependencies') {
-            steps {
-                dir(env.PROJECT_DIR) {
+                dir(env.PROJECT_DIR) { // Navigate inside NIK folder
                     sh 'dotnet restore'
                 }
             }
@@ -29,25 +23,23 @@ pipeline {
 
         stage('Build') {
             steps {
-                dir(env.PROJECT_DIR) {
+                dir(env.PROJECT_DIR) { 
                     sh 'dotnet build --configuration Release --no-restore'
                 }
             }
         }
 
-        stage('Run Unit Tests') {
+        stage('Test') {
             steps {
-                dir(env.PROJECT_DIR) {
-                    catchError(buildResult: 'UNSTABLE') {
-                        sh 'dotnet test --no-restore --verbosity normal'
-                    }
+                dir(env.PROJECT_DIR) { 
+                    sh 'dotnet test --no-restore --verbosity normal'
                 }
             }
         }
 
         stage('Publish') {
             steps {
-                dir(env.PROJECT_DIR) {
+                dir(env.PROJECT_DIR) { 
                     sh 'dotnet publish --configuration Release --output ./publish --no-restore'
                 }
             }
@@ -56,10 +48,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline executed successfully!'
+            echo '✅ Pipeline succeeded!'
         }
         failure {
-            echo 'Pipeline failed. Check logs for details.'
+            echo '❌ Pipeline failed!'
         }
     }
 }
