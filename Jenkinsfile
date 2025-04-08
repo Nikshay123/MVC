@@ -2,20 +2,25 @@ pipeline {
     agent any
 
     environment {
-        DOTNET_VERSION = '8.0' // Specify .NET 8
-        PROJECT_DIR = 'NIK' // Path to the folder containing the .NET project
+        PROJECT_DIR = 'NIK'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Warmup') {
             steps {
-                git branch: 'main', url: 'https://github.com/Nikshay123/MVC.git' // Cloning repository
+                sh 'dotnet --info'
             }
         }
 
-        stage('Restore') {
+        stage('Checkout Code') {
             steps {
-                dir(env.PROJECT_DIR) { // Navigate inside NIK folder
+                git branch: 'main', url: 'https://github.com/Nikshay123/MVC.git'
+            }
+        }
+
+        stage('Restore Dependencies') {
+            steps {
+                dir(env.PROJECT_DIR) {
                     sh 'dotnet restore'
                 }
             }
@@ -23,7 +28,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                dir(env.PROJECT_DIR) { 
+                dir(env.PROJECT_DIR) {
                     sh 'dotnet build --configuration Release --no-restore'
                 }
             }
@@ -31,16 +36,16 @@ pipeline {
 
         stage('Test') {
             steps {
-                dir(env.PROJECT_DIR) { 
-                    sh 'dotnet test --no-restore --verbosity normal'
+                dir(env.PROJECT_DIR) {
+                    sh 'dotnet test --no-restore'
                 }
             }
         }
 
         stage('Publish') {
             steps {
-                dir(env.PROJECT_DIR) { 
-                    sh 'dotnet publish --configuration Release --output ./publish --no-restore'
+                dir(env.PROJECT_DIR) {
+                    sh 'dotnet publish --configuration Release --output publish --no-restore'
                 }
             }
         }
@@ -48,10 +53,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ Pipeline succeeded!'
+            echo '✅ Build & Publish Successful!'
         }
         failure {
-            echo '❌ Pipeline failed!'
+            echo '❌ Pipeline Failed!'
         }
     }
 }
