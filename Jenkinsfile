@@ -4,8 +4,6 @@ pipeline {
     environment {
         DOTNET_VERSION = '8.0' // Specify .NET 8
         PROJECT_DIR = 'NIK' // Path to the folder containing the .NET project
-        DOTNET_ROOT = '/opt/dotnet' // Set correct .NET root
-        PATH = "/opt/dotnet:/opt/dotnet/tools:${env.PATH}" // Update PATH
     }
 
     stages {
@@ -17,7 +15,7 @@ pipeline {
 
         stage('Restore') {
             steps {
-                dir(env.PROJECT_DIR) { 
+                dir(env.PROJECT_DIR) { // Navigate inside NIK folder
                     sh 'dotnet restore'
                 }
             }
